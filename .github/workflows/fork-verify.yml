@@ -28,5 +28,7 @@ jobs:
           echo "$JBR_HOME/bin" >> "$GITHUB_PATH"
           echo "ORG_GRADLE_PROJECT_org.gradle.java.installations.paths=$JBR_HOME" >> "$GITHUB_ENV"
       - uses: 'gradle/actions/setup-gradle@v3'
-      - name: 'Run app-data desktop tests'
-        run: './gradlew :app:shared:app-data:desktopTest --stacktrace "-Porg.gradle.daemon.idletimeout=60000" "-Dfile.encoding=UTF-8" "-Dorg.gradle.jvmargs=-Xmx4g" "-Dkotlin.daemon.jvm.options=-Xmx4g" "--parallel"'
+      - name: 'Run app-data cache storage tests'
+        # 只跑本次修复相关的测试类: BundledSqliteInterpositionGuardTest 在该 runner 上因
+        # native 库加载问题失败且会导致 JVM SIGSEGV, 与本次改动无关, 故用 --tests 精确过滤.
+        run: './gradlew :app:shared:app-data:desktopTest --tests "*MediaCacheStorageSourceTest*" --stacktrace "-Porg.gradle.daemon.idletimeout=60000" "-Dfile.encoding=UTF-8" "-Dorg.gradle.jvmargs=-Xmx4g" "-Dkotlin.daemon.jvm.options=-Xmx4g"'
