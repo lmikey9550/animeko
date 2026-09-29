@@ -1,0 +1,22 @@
+name: 'Fork Verify (app-data)'
+# 最小化验证: 只编译 app-data 并跑它的桌面端单元测试, 不跑全量构建.
+on:
+  push:
+    branches: ['verify/offline-playback-fix']
+  workflow_dispatch:
+jobs:
+  verify-app-data:
+    name: 'app-data desktopTest'
+    runs-on: 'ubuntu-latest'
+    timeout-minutes: 90
+    steps:
+      - uses: 'actions/checkout@v4'
+        with:
+          submodules: 'recursive'
+      - uses: 'actions/setup-java@v4'
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+      - uses: 'gradle/actions/setup-gradle@v3'
+      - name: 'Run app-data desktop tests'
+        run: './gradlew :app:shared:app-data:desktopTest --stacktrace "-Porg.gradle.daemon.idletimeout=60000" "-Dfile.encoding=UTF-8" "-Dorg.gradle.jvmargs=-Xmx4g" "-Dkotlin.daemon.jvm.options=-Xmx4g" "--parallel"'
